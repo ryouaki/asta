@@ -1,30 +1,39 @@
-import { addCount } from '~action/count.js'
+import { $import } from '../src/$import.mjs'
 
 export const loader = async (req) => {
 	// await new Promise(r=> setTimeout(()=>r(null), 100))
 	const data = await fetch('http://localhost:1234/data')
 		.then((res) => res.json())
 		.then((data) => data)
-	return data
+	return {
+		...data,
+		count: 0,
+	}
 }
 
-export default ({ title, comments, rate, imgs, info, cover }) => {
+const addCount = $import('./action/count.js#addCount')
+
+const Header = ({ cover, title, rate }) => (
+	<header>
+		<img src={cover} alt="" />
+		<h1>{title}</h1>
+		<div class="rate">{rate}</div>
+	</header>
+)
+
+export default ({ title, comments, rate, imgs, info, cover, count }) => {
 	return (
 		<div>
-			<header>
-				<img src={cover} alt=""></img>
-				<h1>{title}</h1>
-				<div class="rate">{rate}</div>
-			</header>
+			<Header cover={cover} title={title} rate={rate} />
 			<main>
-				<button $onclick={addCount}>下载TapTap客户端</button>
+				<button $onclick={addCount}>Count: {count}</button>
 			</main>
 			<div class="screenshot">
 				<h3>截图</h3>
 				<ul>
 					{imgs.map((i) => (
-						<li>
-							<img src={i}></img>
+						<li key={i}>
+							<img src={i} />
 						</li>
 					))}
 				</ul>
@@ -39,9 +48,9 @@ export default ({ title, comments, rate, imgs, info, cover }) => {
 				<h3>评价</h3>
 				<ul>
 					{comments.map(({ avatar, name, content }) => (
-						<li>
+						<li key={name}>
 							<div class="bio">
-								<img class="avatar" src={avatar}></img>
+								<img class="avatar" src={avatar} />
 								<b class="name">{name}</b>
 							</div>
 							<p>{content}</p>
